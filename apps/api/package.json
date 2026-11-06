@@ -1,0 +1,42 @@
+{
+  "name": "@sdt/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "rm -rf dist/test && tsc -p tsconfig.json --outDir dist/test && node --test --test-concurrency=1 \"dist/test/**/*.spec.js\"",
+    "test:int": "pnpm run seed:dev && rm -rf dist/test && tsc -p tsconfig.json --outDir dist/test && node --env-file=.env --test --test-concurrency=1 \"dist/test/**/*.int.spec.js\"",
+    "migrate": "tsx src/run-migrations.ts",
+    "migrate:create": "drizzle-kit generate",
+    "seed:dev": "tsx src/seed/run-seed.ts",
+    "lint": "eslint --max-warnings 0"
+  },
+  "dependencies": {
+    "@nestjs/common": "12.1.2",
+    "@nestjs/core": "12.1.2",
+    "@nestjs/platform-express": "12.1.2",
+    "@nestjs/swagger": "12.0.2",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.15.1",
+    "dotenv": "^18.0.9",
+    "drizzle-orm": "^0.45.4",
+    "jose": "6.2.12",
+    "postgres": "^4.1.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9",
+    "@nestjs/cli": "12.0.8",
+    "@types/node": "24.19.0",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^9",
+    "tsx": "^4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}
