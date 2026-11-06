@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: pakn
+          POSTGRES_PASSWORD: pakn_ci
+          POSTGRES_DB: pakn
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pakn" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://pakn:pakn_ci@localhost:5432/pakn
+      JWT_SECRET: ci-only-secret-at-least-32-characters-long
+      SEED_PASSWORD: ci-only
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+      - name: Unit tests
+        run: env -u DATABASE_URL pnpm test
+      - name: Integration tests (Postgres)
+        working-directory: apps/api
+        run: |
+          pnpm migrate
+          pnpm seed:dev
+          rm -rf dist/test && npx tsc -p tsconfig.json --outDir dist/test
+          node --test --test-concurrency=1 "dist/test/**/*.int.spec.js"
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

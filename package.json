@@ -1,0 +1,27 @@
+{
+  "name": "sdt",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "setup": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm db:seed",
+    "dev": "pnpm db:up && pnpm db:migrate && pnpm -r --parallel --stream dev",
+    "dev:api": "pnpm --filter @sdt/api dev",
+    "dev:web": "pnpm --filter @sdt/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:int": "pnpm db:up && pnpm --filter @sdt/api test:int",
+    "db:up": "docker compose -f apps/infra/compose/docker-compose.yml up -d --wait",
+    "db:down": "docker compose -f apps/infra/compose/docker-compose.yml down",
+    "db:migrate": "pnpm --filter @sdt/api migrate",
+    "db:seed": "pnpm --filter @sdt/api seed:dev",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "9.1.7"
+  }
+}

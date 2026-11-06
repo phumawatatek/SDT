@@ -1,0 +1,25 @@
+# Chạy trước mỗi lần push, giống CI để bắt lỗi sớm. Khẩn cấp: git push --no-verify
+set -e
+
+base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
+changed="$(git diff --name-only "$base" HEAD 2>/dev/null || echo ALL)"
+[ -z "$base" ] && changed=ALL
+
+apps=""
+if echo "$changed" | grep -qE '^(ALL|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig\.base\.json|\.nvmrc)$'; then
+  apps="api web"
+else
+  for app in api web; do
+    echo "$changed" | grep -q "^apps/$app/" && apps="$apps $app"
+  done
+fi
+[ -z "$apps" ] && { echo "pre-push: không có app thay đổi, bỏ qua"; exit 0; }
+echo "pre-push: kiểm:$apps"
+
+for app in $apps; do
+  pnpm --filter "@sdt/$app" lint
+  pnpm --filter "@sdt/$app" typecheck
+  pnpm --filter "@sdt/$app" build
+  # Test tích hợp cần DB: bỏ DATABASE_URL để chỉ chạy unit test; CI chạy test tích hợp.
+  env -u DATABASE_URL pnpm --filter "@sdt/$app" test
+done

@@ -1,0 +1,7 @@
+.docs/
+.playwright-mcp/
+node_modules/
+.env
+.env.local
+.eslintcache
+.ai/questions.md

@@ -1,0 +1,15 @@
+# Postgres cho môi trường dev. Port 5433 để không đụng PostgreSQL cài sẵn trên máy (5432).
+name: sdt
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pakn
+      POSTGRES_PASSWORD: pakn_dev
+      POSTGRES_DB: pakn
+    ports:
+      - "5433:5432"
+    volumes:
+      - pakn-db:/var/lib/postgresql/data
+volumes:
+  pakn-db:

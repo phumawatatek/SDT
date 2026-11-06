@@ -1,0 +1,1 @@
+ALTER TYPE "public"."case_status" ADD VALUE 'da_rut' BEFORE 'chuyen_khieu_nai';
